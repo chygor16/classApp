@@ -1,59 +1,42 @@
 <?php
+    include('funct.php');
+    define('MAX_FILE_SIZE', '2097152');
+    $ext = ['image/jpg','image/jpeg','image/png'];
 
-	include "includes/function.php";
+    if(array_key_exists('upload',$_POST)){
+        //print_r($_FILES);
+        $errors = [];
+        if (empty($_FILES['pics']['name'])) {
+            $errors[] = "Please select a file";
+        }
+        if ($_FILES['pics']['size'] > MAX_FILE_SIZE) {
+            $errors[] = "File too large. Maximum: ".MAX_FILE_SIZE;
+            $_FILES['pics']['tmp_name'] = null;
+        }
 
-	
-	define('MAX_FILE_SIZE', '2097152'); // defined constant
-	$ext = ['image/jpg', 'image/jpeg', 'image/png'];
+        //validates if supported format is uploaded
+        if (!in_array($_FILES['pics']['type'], $ext)) {
+            $errors[] = "File format not supported";
+        }
 
-	if (array_key_exists('save', $_POST)){
-		//print_r($_FILES);
+        //validates if file is moved
+      /*  if (!move_uploaded_file($_FILES['pics']['tmp_name'],destination())) {
+            $errors[] = "File not upload";
+        }*/
 
-		$error = [];
-
-		if(empty($_FILES['pics']['name'])){
-			$error[] = "Please select a file";
-		}
-
-		if($_FILES['pics']['size'] > MAX_FILE_SIZE) {
-			$error[] = "File too large. Maximum: ".MAX_FILE_SIZE;
-		}
-
-		if(!in_array($_FILES['pics']['type'], $ext)){
-			$rerror[] = "File format not supported";
-		}
-
-		/*$rnd = rand(0000000000, 9999999999);
-		$strip_name = str_replace(' ', '_', $_FILES['pics']['name']);
-
-		$filename = $rnd.$strip_name;
-		$destination = './uploads/'.$filename;*/
-
-		/*if(!move_uploaded_file($_FILES['pics']['tmp_name'], $destination)){
-			$error[] = "File not uploaded";
-		}*/
-
-		if(empty($error)) {
-		//move_uploaded_file($_FILES['pics']['tmp_name'], $destination);
-			$msg = uploadFile($_FILES, 'pics', 'uploads/');
-
-			if($msg[0]){
-				//echo $msg[0];
-
-				echo "File uploaded";
-			}
-		} else{
-			foreach ($error as $err) {
-				echo $err.'<br/>';
-			}
-		}
-	}
-
+        if (empty($errors)) {
+            move_uploaded_file($_FILES['pics']['tmp_name'],destination());
+            echo "File upload successful";
+        }else {
+            foreach ($errors as $err) {
+                echo $err."<br>";
+            }
+        }            
+    }
 ?>
-
-<form id="register" method="POST", enctype="multipart/form-data">
-	<p>Please Upload a Picture</p>
-	<input type="file" name="pics">
-
-	<input type="submit" name="save">
+<form id="register" method="POST" enctype="multipart/form-data">
+    <p>Please Upload a picture</p>
+    <input type="file" name="pics">
+    
+    <input type="submit" name="upload">
 </form>

@@ -1,99 +1,72 @@
 <?php
-	
 	$page_title = "Register";
 	include 'includes/header.php';
 	include 'includes/db.php';
-	include 'includes/function.php';
+	include 'includes/funct.php';
 
-		$errors = [];
-
-		if(array_key_exists('register', $_POST)) {
-			
-
-			if(empty($_POST['fname'])){
-				$errors['fname'] = "Please enter your firstname";
-			}
-
-			if(empty($_POST['lname'])){
-				$errors['lname'] = "Please enter your lastname";
-			}
-
-			if(empty($_POST['email'])){
-				$errors['email'] = "Please enter your email";
-			}
-
-			if(doesEmailExist($conn, $_POST['email'])){
-				$errors['email'] = "Email already exists";
-			}
-
-			if(empty($_POST['password'])){
-				$errors['password'] = "Please enter your password";
-			}
-
-			if(empty($_POST['pword'])){
-				$errors['pword'] = "Please comfirm your password";
-			}
-
-			if(empty($errors)) {
-				$clean = array_map('trim', $_POST);
-
-				/*$hash = password_hash($clean['password'], PASSWORD_BCRYPT);
-
-				$stmt = $conn->prepare("INSERT INTO admin(firstname, lastname, email, hash)
-							 VALUES(:f, :l,	:e, :h)");
-				$data = [
-					":f" => $clean['fname'],
-					":l" => $clean['lname'],
-					":e" => $clean['email'],
-					":h" => $hash
-				];
-
-				$stmt->execute($data);*/
-
-				doAdminRegister($conn, $clean);
-			}
+	$error = [];
+	if (array_key_exists('register',$_POST)) {
+		
+		if (empty($_POST['fname'])) {
+			$error['fname']  = "Please enter your firstname";
 		}
-	
-?>
+		if (empty($_POST['lname'])) {
+			$error['lname']  = "Please enter your lastname";
+		}	
+		if (empty($_POST['email'])) {
+			$error['email']  = "Please enter your email";
+		}	
 
+		//to validate if email already exist in db
+		if(doesEmailExists($conn, $_POST['email'])){
+			$error['email'] = "Email already exist";
+		}
+		if (empty($_POST['password'])) {
+			$error['password']  = "Please enter your password";
+		}
+		if (empty($_POST['pword'])) {
+			$error['pword']  = "Please confirm your password";
+		}	
+		if (empty($error)) {
+			$clean = array_map('trim',$_POST);
+			
+			//refactoring the admin register
+			doAdminRegister($conn,$clean);
+		}
+			
+	}
+	   
+?>
 <div class="wrapper">
 		<h1 id="register-label">Register</h1>
 		<hr>
 		<form id="register"  action ="register.php" method ="POST">
 			<div>
-				<?php //if(isset($errors['fname'])) { echo '<span class=err>'.$errors['fname'].'</span>';}
-				$data = displayErrors($errors, 'fname');
-				echo $data; ?>
+				<?php $data = displayErrors($error, 'fname'); ?>
 				<label>first name:</label>
 				<input type="text" name="fname" placeholder="first name">
 			</div>
 			<div>
-				<?php //if(isset($errors['lname'])) { echo '<span class=err>'.$errors['lname'].'</span>';}
-				$data = displayErrors($errors, 'lname');
-				echo $data; ?>
+				<?php $data = displayErrors($error, 'lname'); ?>			
 				<label>last name:</label>	
 				<input type="text" name="lname" placeholder="last name">
 			</div>
 
 			<div>
-				<?php //if(isset($errors['email'])){ echo '<span class=err>'.$errors['email'].'</span>';}
-				$data = displayErrors($errors, 'email');
-				echo $data; ?>
+				<?php $data = displayErrors($error, 'email'); ?>								
 				<label>email:</label>
 				<input type="text" name="email" placeholder="email">
 			</div>
 			<div>
-				<?php //if(isset($errors['password'])){ echo '<span class=err>'.$errors['password'].'</span>';} 
-				$data = displayErrors($errors, 'password');
-				echo $data; ?>
+				<?php $data = displayErrors($error, 'password') ?>			
+				<?php if (isset($error['password'])) { echo '<span class=err >'.$error['password'].'</span>'; } ?>								
 				<label>password:</label>
 				<input type="password" name="password" placeholder="password">
 			</div>
  
 			<div>
-				<?php //if(isset($errors['pword'])){ echo '<span class=err>'.$errors['pword'].'</span>';} 
-				$data = displayErrors($errors, 'pword');
-				echo $data; ?>
+				<?php $data = displayErrors($error, 'pword') ?>			
+				<?php if (isset($error['pword'])) { echo '<span class=err >'.$error['pword'].'</span>'; } ?>								
 				<label>confirm password:</label>	
 				<input type="password" name="pword" placeholder="password">
 			</div>
@@ -102,9 +75,7 @@
 		</form>
 
 		<h4 class="jumpto">Have an account? <a href="login.php">login</a></h4>
-	</div>
-
-	<?php
-
-		include 'includes/footer.php';
-	?>
+    </div>
+<?php
+    include 'includes/footer.php';
+?>

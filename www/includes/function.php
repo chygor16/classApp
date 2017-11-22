@@ -68,6 +68,36 @@
 
 			return $result;
 		}
+
+		function doAdminLogin($dbconn, $input) {
+			$hash = password_hash($input['password'], PASSWORD_BCRYPT);
+
+			$stmt = $dbconn->prepare("SELECT * FROM admin WHERE 
+						:e = email and :h = password");
+
+			$data = [
+
+				":e" => $input['email'],
+				":h" => $hash
+			];
+
+			$stmt->execute($data);
+		}
+
+		/*function adminLogin($dbconn, $input){
+			$result = [];
+
+			$stmt = $dbconn->prepare("SELECT * FROM admin WHERE email = :e");
+
+			$*/
+		
+
+		function addCategory($dbconn, $input) {
+			$stmt = $dbconn->prepare("INSERT INTO category(category_name) VALUES(:catName)");
+			$stmt->bindParam(':catName', $input['cat_name']);
+
+			$stmt->execute();
+		}
 ?>
 
 
