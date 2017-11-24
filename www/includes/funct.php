@@ -140,6 +140,7 @@
 
         return $result;
     }
+
     function getCategoryById($dbconn, $id){
     $stmt = $dbconn->prepare("SELECT * FROM category WHERE category_id= :catId");
     $stmt->bindParam(':catId', $id);
@@ -150,12 +151,38 @@
     return $row;
     }
 
+    function getProductById($dbconn, $id){
+        $result = "";
+    $stmt = $dbconn->prepare("SELECT * FROM books WHERE book_id= :bookId");
+    $stmt->bindParam(':bookId', $id);
+    $stmt->execute();
+
+    $result = $stmt->fetch(PDO::FETCH_BOTH);
+
+    return $result;
+    }
+
     function updateCategory($dbconn, $input) {
 
         $stmt = $dbconn->prepare("UPDATE category SET category_name = :catName WHERE category_id = :catId");
         $data = [
             ":catName" =>$input['cat_name'],
             ":catId" =>$input['id']
+        ];
+
+        $stmt->execute($data);
+    }
+
+    function updateProduct($dbconn, $input) {
+
+        $stmt = $dbconn->prepare("UPDATE books SET title = :book_title, author = :author, price = :price, publication_date = :year, category = :cat, flag = :flag, image_path = :image WHERE book_id = :bookId");
+        $data = [
+            ":book_title" => $input['book_title'],
+            ":author" => $input['author'],
+            ":price" => $input['price'],
+            ":year" => $input['year'],
+            ":cat" => $input['cat'],
+            ":bookId" => $input['id']
         ];
 
         $stmt->execute($data);
@@ -182,7 +209,17 @@
         $stmt->execute($data);
     }
 
-    function fetchCategory($dbconn){
+    function deleteProduct($dbconn, $input) {
+
+        $stmt = $dbconn->prepare("DELETE FROM books WHERE book_id = :bookId");
+        $data = [
+            ":bookId" => $input['id']
+        ];
+
+        $stmt->execute($data);
+    }
+
+    function fetchCategory($dbconn, $val=null){
         $result = "";
 
         $stmt = $dbconn->prepare("SELECT * FROM category");
@@ -190,6 +227,10 @@
         $stmt -> execute();
 
         while($row = $stmt->fetch(PDO::FETCH_BOTH)) {
+
+            if($val == $row[1]) {
+                continue;
+            }
             $result .= '<option value="'.$row[0].'">'.$row[1].'</option>';
         }
         return $result;
@@ -213,5 +254,17 @@
                  $result .= '<td><a href ="delete_products.php?book_id='.$row[0].'">delete</a></td></tr>';
             }
                 return $result;
+        }
+
+        function updateImage($dbconn, $id, $location) {
+
+            $stmt = $dbconn->prepare("UPDATE books SET image_path = :img WHERE book_id = :bookId");
+
+            $data = [
+                ":img" => $location,
+                ":bookId" => $id
+            ];
+
+            $stmt->execute($data);
         }
 ?>
